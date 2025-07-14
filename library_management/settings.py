@@ -19,11 +19,13 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'core', # Your core application
+    'core', # Your core application - MUST BE BEFORE rest_framework_simplejwt
     'rest_framework',
-    'rest_framework_simplejwt',
-    # Removed drf_yasg and django_filters for maximum stability
+    'rest_framework_simplejwt', # <-- Make sure this comes AFTER 'core'
+    # 'drf_yasg',
+    # 'django_filters',
 ]
+
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
