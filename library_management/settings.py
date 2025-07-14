@@ -25,11 +25,12 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', 'your-long-random-development-secret-key-here')
+SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', 'your-long-random-development-secret-key-here') # REMEMBER TO SET DJANGO_SECRET_KEY ON RAILWAY
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.environ.get('DJANGO_DEBUG', 'False').lower() == 'true'
 
+# Allowed hosts for Django application. Railway will inject its domain here.
 ALLOWED_HOSTS = os.environ.get('DJANGO_ALLOWED_HOSTS', '127.0.0.1,localhost,library-management-system-production-06ae.up.railway.app').split(',')
 
 
@@ -42,16 +43,16 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'core',
+    'core', # Your core application
     'rest_framework',
     'rest_framework_simplejwt',
-    'drf_yasg',
-    'django_filters',
+    # 'drf_yasg',  # STILL REMOVED: Re-add only after core API is stable and tested
+    'django_filters', # Re-added as requested
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware', # For serving static files in production
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -72,7 +73,7 @@ TEMPLATES = [
                 'django.template.context_processors.debug',
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
-                'django.contrib.messages.context_processors.messages',
+                'django.template.context_processors.messages',
             ],
         },
     },
@@ -82,10 +83,11 @@ WSGI_APPLICATION = 'library_management.wsgi.application'
 
 
 # Database
+# Uses dj_database_url to parse DATABASE_URL environment variable
 DATABASES = {
     'default': dj_database_url.config(
-        default='sqlite:///db.sqlite3',
-        conn_max_age=600
+        default='sqlite:///db.sqlite3', # Fallback for local development
+        conn_max_age=600 # Optional: Reconnect after 10 minutes
     )
 }
 
@@ -120,6 +122,7 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 STATIC_URL = 'static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+# Configure WhiteNoise to serve static files efficiently in production
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 
@@ -138,8 +141,7 @@ REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': (
         'rest_framework.permissions.IsAuthenticated',
     ),
-    # The 'DEFAULT_SCHEMA_CLASS' line for drf_yasg should NOT be here. <--- THIS COMMENT IS STILL VALID, ENSURE THE LINE IS GONE
-    'DEFAULT_FILTER_BACKENDS': (
+    'DEFAULT_FILTER_BACKENDS': ( # Re-added as requested
         'django_filters.rest_framework.DjangoFilterBackend',
         'rest_framework.filters.SearchFilter',
         'rest_framework.filters.OrderingFilter',
