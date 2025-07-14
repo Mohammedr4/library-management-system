@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Library Management System</title>
+    <style>
+        /* Basic CSS for a clean look - you can expand this */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+            color: #333;
+            line-height: 1.6;
+        }
+        .container {
+            width: 80%;
+            margin: auto;
+            overflow: hidden;
+            padding: 20px 0;
+        }
+        header {
+            background: #333;
+            color: #fff;
+            padding-top: 20px;
+            min-height: 70px;
+            border-bottom: #77aaff 3px solid;
+            text-align: center;
+        }
+        header h1 {
+            margin: 0;
+            padding-bottom: 10px;
+        }
+        nav ul {
+            padding: 0;
+            list-style: none;
+        }
+        nav ul li {
+            display: inline;
+            padding: 0 15px;
+        }
+        nav ul li a {
+            color: #fff;
+            text-decoration: none;
+            text-transform: uppercase;
+            font-size: 16px;
+        }
+        .main-content {
+            padding: 20px;
+            background: #fff;
+            margin-top: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        .section {
+            margin-bottom: 30px;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background-color: #fdfdfd;
+        }
+        .section h2 {
+            color: #333;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 10px;
+            margin-bottom: 15px;
+        }
+        form label {
+            display: block;
+            margin-bottom: 5px;
+        }
+        form input[type="email"],
+        form input[type="password"],
+        form input[type="text"] {
+            width: 95%;
+            padding: 8px;
+            margin-bottom: 10px;
+            border-radius: 4px;
+            border: 1px solid #ddd;
+        }
+        form button {
+            display: inline-block;
+            background: #337ab7;
+            color: #fff;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        form button:hover {
+            background: #286090;
+        }
+        footer {
+            text-align: center;
+            padding: 20px;
+            margin-top: 20px;
+            color: #555;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1>Library Management System</h1>
+            <nav>
+                <ul>
+                    <li><a href="#register">Register</a></li>
+                    <li><a href="#login">Login</a></li>
+                    <li><a href="#books">Browse Books</a></li>
+                    <li><a href="{% url 'swagger-ui' %}">API Docs (Swagger)</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <div class="container main-content">
+        <section id="welcome" class="section">
+            <h2>Welcome to Your Library</h2>
+            <p>This is a simple frontend interface for the Library Management System API. Use the forms below to register, log in, or explore the books available.</p>
+        </section>
+
+        <section id="register" class="section">
+            <h2>Register</h2>
+            <form action="/api/users/register/" method="POST">
+                <p>Note: This form is a placeholder. For full functionality, you'd integrate with JavaScript.</p>
+                <label for="reg_email">Email:</label>
+                <input type="email" id="reg_email" name="email" required>
+
+                <label for="reg_first_name">First Name:</label>
+                <input type="text" id="reg_first_name" name="first_name" required>
+
+                <label for="reg_last_name">Last Name:</label>
+                <input type="text" id="reg_last_name" name="last_name" required>
+
+                <label for="reg_password">Password:</label>
+                <input type="password" id="reg_password" name="password" required>
+
+                <label for="reg_password2">Confirm Password:</label>
+                <input type="password" id="reg_password2" name="password2" required>
+
+                <button type="submit">Register</button>
+            </form>
+        </section>
+
+        <section id="login" class="section">
+            <h2>Login</h2>
+            <form action="/api/token/" method="POST">
+                <p>Note: This form is a placeholder. For full functionality, you'd integrate with JavaScript.</p>
+                <label for="login_email">Email:</label>
+                <input type="email" id="login_email" name="email" required>
+
+                <label for="login_password">Password:</label>
+                <input type="password" id="login_password" name="password" required>
+
+                <button type="submit">Login</button>
+            </form>
+        </section>
+
+        <section id="books" class="section">
+            <h2>Available Books</h2>
+            <p>This section would dynamically list books fetched from your API (e.g., `/api/books/`) using JavaScript. For now, here's a placeholder:</p>
+            <ul>
+                <li>Book Title 1 - Author A</li>
+                <li>Book Title 2 - Author B</li>
+                <li>Book Title 3 - Author C</li>
+            </ul>
+            <p>
+                <a href="/api/books/" target="_blank">View Books API Endpoint</a>
+            </p>
+        </section>
+    </div>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 Library Management System. All rights reserved.</p>
+        </div>
+    </footer>
+</body>
+</html>

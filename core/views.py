@@ -4,6 +4,7 @@ from rest_framework import viewsets, generics, status
 from rest_framework.permissions import AllowAny, IsAuthenticated, IsAdminUser
 from rest_framework.response import Response
 from rest_framework.decorators import action
+from django.shortcuts import render
 
 # Import filters
 from rest_framework.filters import SearchFilter, OrderingFilter
@@ -14,6 +15,17 @@ from .serializers import (
     CustomUserSerializer, BookSerializer, LoanSerializer,
     RegisterSerializer, ChangePasswordSerializer
 )
+
+# core/views.py
+from django.shortcuts import render
+
+def frontend_view(request):
+    """
+    Renders the main frontend HTML page.
+    """
+    return render(request, 'index.html')
+
+# ... (your existing ViewSets for API) ...
 
 class CustomUserViewSet(viewsets.ModelViewSet):
     queryset = CustomUser.objects.all()
