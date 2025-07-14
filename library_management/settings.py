@@ -1,3 +1,5 @@
+# library_management/settings.py
+
 """
 Django settings for library_management project.
 
@@ -136,7 +138,7 @@ REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': (
         'rest_framework.permissions.IsAuthenticated',
     ),
-    # The 'DEFAULT_SCHEMA_CLASS' line for drf_yasg should NOT be here.
+    # The 'DEFAULT_SCHEMA_CLASS' line for drf_yasg should NOT be here. <--- THIS COMMENT IS STILL VALID, ENSURE THE LINE IS GONE
     'DEFAULT_FILTER_BACKENDS': (
         'django_filters.rest_framework.DjangoFilterBackend',
         'rest_framework.filters.SearchFilter',
