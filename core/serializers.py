@@ -62,4 +62,4 @@ class LoanSerializer(serializers.ModelSerializer):
     class Meta:
         model = Loan
         fields = '__all__'
-        read_only_fields = ('loan_date',) # loan_date is set automatically
+        read_only_fields = ('loan_date',) 

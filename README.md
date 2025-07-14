@@ -1,49 +1,52 @@
 # Library Management System API
 
-This project implements a RESTful API for a simple library management system using Django and Django REST Framework.
+A robust RESTful API for managing books, users, and loans within a library system. Built with Django and Django REST Framework, featuring authentication, permissions, filtering, searching, ordering, and interactive API documentation.
 
 ## Features
 
 * **User Management:**
-    * User registration and login (JWT authenticated).
-    * Extended Django User model.
+    * User registration (`/api/users/register/`)
+    * User authentication (JWT Tokens) (`/api/token/`, `/api/token/refresh/`)
+    * Password change (`/api/users/<id>/change-password/`)
+    * Admin access to manage all users.
 * **Book Management:**
-    * Browse/search books (anonymous and registered users).
-    * Add/remove books (administrators only).
-    * **Bonus: Filtering, Searching, and Pagination for books.**
+    * CRUD operations for books.
+    * Publicly viewable book listings.
+    * Admin-only access for creating, updating, and deleting books.
+    * Filtering by author, genre, published date, and available copies.
+    * Searching by title, author, ISBN, and genre.
+    * Ordering by various fields.
 * **Loan Management:**
-    * Borrow books (registered users).
-    * Return books (registered users).
-    * View personal loan history.
-* **Authentication:** JWT (JSON Web Token) based authentication.
-* **Admin Panel:** Simple Django Admin interface for managing users, books, and loans.
-* **Automated Testing:** (Mention if you've implemented tests, otherwise remove)
-* **API Documentation:** Interactive API documentation using Swagger UI and Redoc.
+    * CRUD operations for loans.
+    * Users can view and manage their own loans.
+    * Admins can view and manage all loans.
+    * Filtering by user, book, loan date, and return date.
+    * Searching by user email, book title, and author.
+    * Ordering by loan date and return date.
+* **API Documentation:** Interactive Swagger UI and Redoc documentation.
 
 ## Technologies Used
 
-* **Backend:** Python 3.x, Django 5.x, Django REST Framework
-* **Authentication:** `djangorestframework-simplejwt`
-* **Database:** SQLite (development), PostgreSQL (production)
-* **API Documentation:** `drf-yasg` (Swagger/Redoc)
-* **Filtering:** `django-filter`
-* **Deployment Tools:** Gunicorn, Whitenoise, dj-database-url
-* **Containerization:** Docker
-* **Version Control:** Git
+* Python 3.x
+* Django
+* Django REST Framework
+* Django REST Framework Simple JWT (for token authentication)
+* drf-yasg (for Swagger/OpenAPI documentation)
+* django-filter (for advanced filtering)
+* WhiteNoise (for serving static files in production)
+* PostgreSQL (recommended for production via Railway)
 
-## Setup and Local Development
+## Setup Instructions (Local Development)
 
-Follow these steps to get the project up and running on your local machine.
+Follow these steps to get a development copy of the project running on your local machine.
 
 ### Prerequisites
 
 * Python 3.9+
-* `pip` (Python package installer)
-* Git
-* (Optional but Recommended) Postman or Insomnia for API testing
+* pip (Python package installer)
 
 ### 1. Clone the Repository
 
 ```bash
-git clone <YOUR_GITHUB_REPO_URL_HERE>
-cd library_management
+git clone [https://github.com/your-username/library_management_system.git](https://github.com/your-username/library_management_system.git)
+cd library_management_system
