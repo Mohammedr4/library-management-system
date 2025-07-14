@@ -8,12 +8,10 @@ from datetime import timedelta
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # SECURITY WARNING: keep the secret key used in production secret!
-# TEMPORARY: For local testing and to bypass the SECRET_KEY error during build.
-# You will revert this to os.environ.get() once it works.
-SECRET_KEY = 'ihps*_2++_hl9h2zxo^@c_g=0tx)&l(g5jr7af3w820bf40xbr' # <--- PUT YOUR KEY DIRECTLY HERE FOR NOW
+SECRET_KEY = 'ihps*_2++_hl9h2zxo^@c_g=0tx)&l(g5jr7af3w820bf40xbr'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.environ.get('DJANGO_DEBUG', 'False').lower() == 'true'
+DEBUG = True # <--- CHANGE THIS TO TRUE FOR LOCAL TESTING
 
 # Allowed hosts for Django application. Railway will inject its domain here.
 ALLOWED_HOSTS = os.environ.get('DJANGO_ALLOWED_HOSTS', '127.0.0.1,localhost').split(',')
@@ -25,9 +23,13 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'core', # Your core application - MUST BE BEFORE rest_framework_simplejwt
+    # Third-party apps
     'rest_framework',
-    'rest_framework_simplejwt', # <-- Make sure this comes AFTER 'core'
+    'rest_framework_simplejwt',
+    'django_filters', # Recommended order: django_filters before drf_yasg
+    'drf_yasg',       # drf_yasg here
+    # Your apps
+    'core',
 ]
 
 MIDDLEWARE = [
@@ -43,7 +45,6 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = 'library_management.urls'
 
-
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
@@ -54,13 +55,11 @@ TEMPLATES = [
                 'django.template.context_processors.debug',
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
-                'django.contrib.messages.context_processors.messages', # <--- THIS LINE IS CRUCIAL
+                'django.contrib.messages.context_processors.messages',
             ],
         },
     },
 ]
-
-# ... (rest of your settings) ...
 
 WSGI_APPLICATION = 'library_management.wsgi.application'
 
@@ -91,6 +90,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 AUTH_USER_MODEL = 'core.CustomUser'
 
+# --- REPLACED/CORRECTED REST_FRAMEWORK BLOCK ---
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
@@ -99,6 +99,12 @@ REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': (
         'rest_framework.permissions.IsAuthenticated',
     ),
+    'DEFAULT_FILTER_BACKENDS': (
+        'django_filters.rest_framework.DjangoFilterBackend',
+        'rest_framework.filters.SearchFilter',
+        'rest_framework.filters.OrderingFilter',
+    ),
+    'DEFAULT_SCHEMA_CLASS': 'rest_framework.schemas.openapi.AutoSchema', # <--- CORRECTED THIS LINE
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
     'PAGE_SIZE': 10
 }
