@@ -1,30 +1,23 @@
-# core/urls.py
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
-from rest_framework_simplejwt.views import (
-    TokenObtainPairView,
-    TokenRefreshView,
-)
+from rest_framework_simplejwt.views import TokenRefreshView
+
 from .views import (
-    UserRegistrationView,
+    CustomUserRegistrationView,
+    MyTokenObtainPairView,
+    CustomUserViewSet,
     BookViewSet,
-    BorrowBookView,
-    ReturnBookView,
-    UserLoansView
+    LoanViewSet,
 )
 
 router = DefaultRouter()
-router.register(r'books', BookViewSet) # Register BookViewSet for CRUD operations
+router.register(r'users', CustomUserViewSet, basename='user')
+router.register(r'books', BookViewSet, basename='book')
+router.register(r'loans', LoanViewSet, basename='loan')
 
 urlpatterns = [
-    # Authentication URLs
-    path('register/', UserRegistrationView.as_view(), name='register'),
-    path('token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
+    path('', include(router.urls)),
+    path('register/', CustomUserRegistrationView.as_view({'post': 'create'}), name='register'),
+    path('token/', MyTokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
-
-    # Book & Loan URLs
-    path('', include(router.urls)), # Includes /books/ and /books/<pk>/
-    path('books/<int:pk>/borrow/', BorrowBookView.as_view(), name='borrow_book'),
-    path('books/<int:pk>/return/', ReturnBookView.as_view(), name='return_book'),
-    path('my-loans/', UserLoansView.as_view(), name='my_loans'),
 ]

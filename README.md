@@ -10,13 +10,14 @@ This project implements a RESTful API for a simple library management system usi
 * **Book Management:**
     * Browse/search books (anonymous and registered users).
     * Add/remove books (administrators only).
+    * **Bonus: Filtering, Searching, and Pagination for books.**
 * **Loan Management:**
     * Borrow books (registered users).
     * Return books (registered users).
     * View personal loan history.
 * **Authentication:** JWT (JSON Web Token) based authentication.
 * **Admin Panel:** Simple Django Admin interface for managing users, books, and loans.
-* **Automated Testing:** Comprehensive unit and integration tests for core functionalities.
+* **Automated Testing:** (Mention if you've implemented tests, otherwise remove)
 * **API Documentation:** Interactive API documentation using Swagger UI and Redoc.
 
 ## Technologies Used
@@ -25,7 +26,8 @@ This project implements a RESTful API for a simple library management system usi
 * **Authentication:** `djangorestframework-simplejwt`
 * **Database:** SQLite (development), PostgreSQL (production)
 * **API Documentation:** `drf-yasg` (Swagger/Redoc)
-* **Deployment Tools:** Gunicorn, Whitenoise, dj-database-url (for Heroku/Docker)
+* **Filtering:** `django-filter`
+* **Deployment Tools:** Gunicorn, Whitenoise, dj-database-url
 * **Containerization:** Docker
 * **Version Control:** Git
 

@@ -1,90 +1,102 @@
-# core/views.py
-from rest_framework import generics, viewsets, status
-from rest_framework.response import Response
-from rest_framework.permissions import AllowAny, IsAuthenticated, IsAdminUser
-from rest_framework.views import APIView
-from django.shortcuts import get_object_or_404
-from django.utils import timezone
+from rest_framework import viewsets, permissions, filters # Ensure 'filters' is imported
+from django_filters.rest_framework import DjangoFilterBackend # NEW: Import DjangoFilterBackend
 
-from .models import CustomUser, Book, Loan
-from .serializers import UserRegistrationSerializer, UserSerializer, BookSerializer, LoanSerializer
+from .models import Book, Loan, CustomUser # Your models
+from .serializers import BookSerializer, LoanSerializer, UserSerializer, UserRegistrationSerializer
 
-# --- Authentication Views ---
+# For JWT authentication views (already there)
+from rest_framework_simplejwt.views import TokenObtainPairView
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
-class UserRegistrationView(generics.CreateAPIView):
+
+# --- User Registration, Login, and ViewSets ---
+
+class CustomUserRegistrationView(viewsets.ModelViewSet):
     queryset = CustomUser.objects.all()
     serializer_class = UserRegistrationSerializer
-    permission_classes = [AllowAny] # Allow anyone to register
+    permission_classes = [permissions.AllowAny] # Allow anyone to register
 
-    def post(self, request, *args, **kwargs):
-        serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        self.perform_create(serializer)
-        headers = self.get_success_headers(serializer.data)
-        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+    # Only allow create action (registration)
+    def get_queryset(self):
+        return CustomUser.objects.none() # Hide list of users for security via this view
 
-# --- Book Views ---
+    def list(self, request, *args, **kwargs):
+        # Override list method to prevent listing users through the registration endpoint
+        from rest_framework.response import Response
+        from rest_framework import status
+        return Response({'detail': 'Method not allowed for this endpoint.'}, status=status.HTTP_405_METHOD_NOT_ALLOWED)
+
+
+class MyTokenObtainPairView(TokenObtainPairView):
+    # This class uses the default Simple JWT serializer
+    pass
+
+class CustomUserViewSet(viewsets.ModelViewSet):
+    queryset = CustomUser.objects.all()
+    serializer_class = UserSerializer
+    permission_classes = [permissions.IsAdminUser] # Only admin can manage users
 
 class BookViewSet(viewsets.ModelViewSet):
-    queryset = Book.objects.all()
+    queryset = Book.objects.all().order_by('title')
     serializer_class = BookSerializer
+    
+    # NEW: Add these lines for filtering, searching, and ordering (Bonus Feature)
+    filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
+    filterset_fields = ['author', 'isbn', 'availability'] # Fields you can filter by exact match
+    search_fields = ['title', 'author', 'isbn'] # Fields you can search by keyword
+    ordering_fields = ['title', 'author', 'page_count'] # Fields you can order by
 
     def get_permissions(self):
-        # Anonymous users can list/retrieve (browse)
-        # Authenticated users (registered) can list/retrieve (browse)
-        # Admins can create, update, delete
-        if self.action in ['list', 'retrieve']:
-            self.permission_classes = [AllowAny]
+        if self.action in ['create', 'update', 'partial_update', 'destroy']:
+            self.permission_classes = [permissions.IsAdminUser] # Admin can add/edit/delete books
         else:
-            self.permission_classes = [IsAdminUser] # For create, update, destroy
+            self.permission_classes = [permissions.AllowAny] # Anyone can list/retrieve books
         return super().get_permissions()
 
-    # Bonus: Filtering and Pagination will be applied via settings.py or custom filter backends later.
-
-# --- Loan Views ---
-
-class BorrowBookView(APIView):
-    permission_classes = [IsAuthenticated] # Only registered users can borrow
-
-    def post(self, request, pk):
-        book = get_object_or_404(Book, pk=pk)
-        # Pass the book instance to the serializer for validation
-        serializer = LoanSerializer(data={'book_id': book.id}, context={'request': request})
-        serializer.is_valid(raise_exception=True)
-
-        try:
-            # The create method in LoanSerializer handles setting user, book availability
-            loan = serializer.save()
-            return Response(LoanSerializer(loan, context={'request': request}).data, status=status.HTTP_201_CREATED)
-        except Exception as e:
-            return Response({"detail": str(e)}, status=status.HTTP_400_BAD_REQUEST)
-
-class ReturnBookView(APIView):
-    permission_classes = [IsAuthenticated] # Only registered users can return
-
-    def post(self, request, pk):
-        # Find the specific loan by the current user for the given book that is not yet returned
-        loan = get_object_or_404(
-            Loan,
-            book__pk=pk,
-            user=request.user,
-            return_date__isnull=True
-        )
-
-        serializer = LoanSerializer(loan, data={'return_date': timezone.now()}, partial=True, context={'request': request})
-        serializer.is_valid(raise_exception=True)
-
-        try:
-            # The update method in LoanSerializer handles setting return_date and book availability
-            loan = serializer.save()
-            return Response(LoanSerializer(loan, context={'request': request}).data, status=status.HTTP_200_OK)
-        except Exception as e:
-            return Response({"detail": str(e)}, status=status.HTTP_400_BAD_REQUEST)
-
-class UserLoansView(generics.ListAPIView):
+class LoanViewSet(viewsets.ModelViewSet):
+    queryset = Loan.objects.all()
     serializer_class = LoanSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticated] # Default to authenticated access
 
     def get_queryset(self):
-        # Return only loans belonging to the authenticated user
-        return Loan.objects.filter(user=self.request.user).order_by('-borrow_date')
+        # Admin can see all loans, regular users only see their own
+        if self.request.user.is_staff:
+            return Loan.objects.all()
+        return Loan.objects.filter(borrower=self.request.user)
+
+    def perform_create(self, serializer):
+        # When a user borrows a book, set the borrower to the current user
+        # And ensure book availability is updated
+        book = serializer.validated_data['book']
+        if not book.availability:
+            from rest_framework.exceptions import ValidationError
+            raise ValidationError("This book is currently not available.")
+        
+        serializer.save(borrower=self.request.user)
+        book.availability = False
+        book.save()
+
+    def perform_update(self, serializer):
+        # If a loan is marked as returned, update book availability
+        old_instance = self.get_object()
+        serializer.save()
+        if serializer.instance.returned_date and not old_instance.returned_date:
+            serializer.instance.book.availability = True
+            serializer.instance.book.save()
+
+    def perform_destroy(self, instance):
+        # If a loan is deleted, mark the book as available again
+        book = instance.book
+        instance.delete()
+        if not book.loan_set.filter(returned_date__isnull=True).exists():
+            book.availability = True
+            book.save()
+
+# New view for user's personal loans (if you want a dedicated endpoint)
+# class MyLoansViewSet(viewsets.ReadOnlyModelViewSet):
+#     queryset = Loan.objects.all()
+#     serializer_class = LoanSerializer
+#     permission_classes = [permissions.IsAuthenticated]
+
+#     def get_queryset(self):
+#         return Loan.objects.filter(borrower=self.request.user)
