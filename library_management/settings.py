@@ -7,10 +7,16 @@ from datetime import timedelta
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# Use environment variables for production secrets/settings
-SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY') # Railway will provide this from your variables
+# SECURITY WARNING: keep the secret key used in production secret!
+# TEMPORARY: For local testing and to bypass the SECRET_KEY error during build.
+# You will revert this to os.environ.get() once it works.
+SECRET_KEY = 'ihps*_2++_hl9h2zxo^@c_g=0tx)&l(g5jr7af3w820bf40xbr' # <--- PUT YOUR KEY DIRECTLY HERE FOR NOW
+
+# SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.environ.get('DJANGO_DEBUG', 'False').lower() == 'true'
-ALLOWED_HOSTS = os.environ.get('DJANGO_ALLOWED_HOSTS', '127.0.0.1,localhost').split(',') # Default for local, Railway provides correct value
+
+# Allowed hosts for Django application. Railway will inject its domain here.
+ALLOWED_HOSTS = os.environ.get('DJANGO_ALLOWED_HOSTS', '127.0.0.1,localhost').split(',')
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -22,10 +28,7 @@ INSTALLED_APPS = [
     'core', # Your core application - MUST BE BEFORE rest_framework_simplejwt
     'rest_framework',
     'rest_framework_simplejwt', # <-- Make sure this comes AFTER 'core'
-    # 'drf_yasg',
-    # 'django_filters',
 ]
-
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -40,6 +43,7 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = 'library_management.urls'
 
+
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
@@ -50,19 +54,20 @@ TEMPLATES = [
                 'django.template.context_processors.debug',
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
-                'django.template.context_processors.messages',
+                'django.contrib.messages.context_processors.messages', # <--- THIS LINE IS CRUCIAL
             ],
         },
     },
 ]
 
+# ... (rest of your settings) ...
+
 WSGI_APPLICATION = 'library_management.wsgi.application'
 
-# Database configuration for PostgreSQL on Railway
 DATABASES = {
     'default': dj_database_url.config(
-        default='sqlite:///db.sqlite3', # Fallback for local development
-        conn_max_age=600 # Keep database connections alive for a certain period
+        default='sqlite:///db.sqlite3',
+        conn_max_age=600
     )
 }
 
@@ -94,7 +99,6 @@ REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': (
         'rest_framework.permissions.IsAuthenticated',
     ),
-    # Removed filtering and schema classes for stability
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
     'PAGE_SIZE': 10
 }
