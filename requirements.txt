@@ -4,6 +4,4 @@ djangorestframework-simplejwt
 gunicorn
 dj-database-url
 whitenoise
-psycopg2-binary # Critical for PostgreSQL connectivity
-django-filter # Re-added as requested
-# drf-yasg # STILL REMOVED
+psycopg2-binary
